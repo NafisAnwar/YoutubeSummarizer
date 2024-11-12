@@ -1,0 +1,72 @@
+
+function addButton() {
+    const buttonContainer = document.querySelector("ytd-menu-renderer[class='style-scope ytd-watch-metadata']");
+    if (buttonContainer) {
+      const button = document.createElement("button");
+      button.innerText = "Extract Transcript";
+      button.style.backgroundColor = "#0073e6";
+      button.style.color = "#fff";
+      button.style.padding = "8px 12px";
+      button.style.borderRadius = "5px";
+      button.style.border = "none";
+      button.style.cursor = "pointer";
+  
+      button.addEventListener("click", extractTranscript);
+      buttonContainer.appendChild(button);
+    } else {
+      const observer = new MutationObserver((mutations) => {
+        for (let mutation of mutations) {
+          if (mutation.type === "childList") {
+            const newButtonContainer = document.querySelector("ytd-menu-renderer[class='style-scope ytd-watch-metadata']");
+            if (newButtonContainer) {
+              addButton();
+              observer.disconnect();
+              break;
+            }
+          }
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+  
+  function extractTranscript() {
+    const transcriptButton = document.querySelector(
+      "ytd-menu-renderer[class='style-scope ytd-watch-metadata'] yt-button-shape[id='button-shape'] div[class='yt-spec-touch-feedback-shape__fill']"
+    );
+  
+    if (transcriptButton) {
+      transcriptButton.click();
+      setTimeout(() => {
+        const showTranscriptButton = Array.from(
+          document.querySelectorAll("ytd-menu-service-item-renderer")
+        ).find((item) => item.innerText === "Show transcript");
+  
+        if (showTranscriptButton) {
+          showTranscriptButton.click();
+          setTimeout(() => {
+            const transcriptLines = Array.from(
+              document.querySelectorAll("yt-formatted-string.segment-text")
+            );
+            const transcriptText = transcriptLines.map(line => line.innerText).join("\n");
+  
+            navigator.clipboard.writeText(transcriptText).then(() => {
+              console.log("Transcript copied to clipboard!");
+            });
+  
+            const closeButton = document.querySelector(
+              "button[aria-label='Close transcript'] div[class='yt-spec-touch-feedback-shape__fill']"
+            );
+            if (closeButton) closeButton.click();
+  
+            setTimeout(() => {
+              window.location.href = "https://chat.openai.com/";
+            }, 1000);
+          }, 3000);
+        }
+      }, 1000);
+    }
+  }
+  
+  addButton();
+  

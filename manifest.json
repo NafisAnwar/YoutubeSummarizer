@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "YouTube Transcript Extractor",
+    "version": "1.0",
+    "description": "Extracts YouTube video transcripts and pastes them into ChatGPT.",
+    "permissions": ["scripting", "clipboardRead", "clipboardWrite"],
+    "content_scripts": [
+      {
+        "matches": ["*://www.youtube.com/*"],
+        "js": ["youtube.js"]
+      },
+      {
+        "matches": ["https://chat.openai.com/*"],
+        "js": ["pasteToChat.js"]
+      }
+    ],
+    "action": {
+      "default_popup": "popup.html"
+    }
+  }
+  
